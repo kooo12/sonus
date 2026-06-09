@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velo/core/services/audio_service.dart';
 import 'package:velo/routhing/app_routes.dart';
@@ -35,8 +36,9 @@ class OnboardingController extends GetxController {
     final audioService = Get.find<AudioPlayerService>();
     await audioService.checkPermissions();
 
-    if (audioService.hasPermission.value) {
-      nextPage();
+    final status = await Permission.notification.status;
+    if (status.isGranted) {
+      finishOnboarding();
     } else {
       nextPage();
     }
@@ -48,9 +50,19 @@ class OnboardingController extends GetxController {
     nextPage();
   }
 
-  void skipPermission() {
+  Future<void> skipPermission() async {
     hasSkippedPermissions.value = true;
-    nextPage();
+    
+    if (currentPage.value == 1) {
+      final status = await Permission.notification.status;
+      if (status.isGranted) {
+        finishOnboarding();
+      } else {
+        nextPage();
+      }
+    } else {
+      nextPage();
+    }
   }
 
   Future<void> finishOnboarding() async {

@@ -859,8 +859,8 @@ class AudioPlayerService extends GetxService {
       debugPrint(
           'AudioService.playAtIndex: Playing song: ${song.title} by ${song.artist} ${song.duration} (playlist index: $index)');
 
-      if (song.data.startsWith('http')) {
-        await _audioPlayer.setUrl(song.data);
+      if (song.data.startsWith('http') || song.data.startsWith('content://') || song.data.startsWith('file://')) {
+        await _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(song.data)));
       } else if (song.data.startsWith('assets/')) {
         await _audioPlayer.setAsset(song.data);
       } else {

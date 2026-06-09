@@ -12,6 +12,7 @@ import 'package:velo/core/bindings/app_binding.dart';
 import 'package:device_preview_plus/device_preview_plus.dart';
 import 'package:velo/core/config/app_config.dart';
 import 'package:velo/core/controllers/theme_controller.dart';
+import 'package:velo/core/models/song_model.dart' as models;
 import 'package:velo/core/services/app_audio_handler.dart';
 import 'package:velo/core/services/app_audio_session.dart';
 import 'package:velo/core/services/app_lifecycle_manager.dart';
@@ -106,21 +107,41 @@ void _initAppLinks() {
 
   appLinks.uriLinkStream.listen((uri) {
     debugPrint('==> AppLinks Received URI (bg/fg): $uri');
-    if (uri.path.isNotEmpty) {
-      debugPrint('==> AppLinks Path: ${uri.path}');
-    }
+    _handleIncomingUri(uri);
   });
 
   appLinks.getInitialLink().then((uri) {
     if (uri != null) {
       debugPrint('==> AppLinks Received URI (cold start): $uri');
-      if (uri.path.isNotEmpty) {
-        debugPrint('==> AppLinks Path: ${uri.path}');
-      }
+      _handleIncomingUri(uri);
     }
   }).catchError((e) {
     debugPrint('==> AppLinks Failed to get initial link: $e');
   });
+}
+
+void _handleIncomingUri(Uri uri) async {
+  if (uri.scheme == 'file' || uri.scheme == 'content') {
+    debugPrint('==> AppLinks handling file/content URI: $uri');
+    final audioService = Get.find<svc.AudioPlayerService>();
+    
+    final songPath = uri.toString();
+    String fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'Unknown Audio';
+    fileName = Uri.decodeComponent(fileName);
+    
+    final newSong = models.SongModel(
+      id: songPath.hashCode,
+      title: fileName,
+      artist: 'Unknown Artist',
+      album: 'Shared Audio',
+      duration: 0,
+      data: songPath,
+      displayName: fileName,
+      size: 0,
+    );
+
+    await audioService.playSong([newSong], newSong);
+  }
 }
 
 FirebaseOptions _getFirebaseOptions() {
@@ -171,6 +192,7 @@ Future<AppAudioHandler> _initAudioService() async {
       androidShowNotificationBadge: true,
       androidNotificationClickStartsActivity: true,
       androidResumeOnClick: true,
+      notificationColor: Color(0xFF134E5E),
       fastForwardInterval: Duration(seconds: 10),
       rewindInterval: Duration(seconds: 10),
     ),
