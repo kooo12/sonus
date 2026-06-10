@@ -124,11 +124,12 @@ void _handleIncomingUri(Uri uri) async {
   if (uri.scheme == 'file' || uri.scheme == 'content') {
     debugPrint('==> AppLinks handling file/content URI: $uri');
     final audioService = Get.find<svc.AudioPlayerService>();
-    
+
     final songPath = uri.toString();
-    String fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'Unknown Audio';
+    String fileName =
+        uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'Unknown Audio';
     fileName = Uri.decodeComponent(fileName);
-    
+
     final newSong = models.SongModel(
       id: songPath.hashCode,
       title: fileName,
@@ -192,7 +193,7 @@ Future<AppAudioHandler> _initAudioService() async {
       androidShowNotificationBadge: true,
       androidNotificationClickStartsActivity: true,
       androidResumeOnClick: true,
-      notificationColor: Color(0xFF134E5E),
+      androidNotificationIcon: 'drawable/ic_notification',
       fastForwardInterval: Duration(seconds: 10),
       rewindInterval: Duration(seconds: 10),
     ),
