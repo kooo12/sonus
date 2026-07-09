@@ -529,7 +529,7 @@ class _WaveformPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final barWidth = size.width / peaks.length;
-    final maxPeak = 100.0; // Jamendo peaks are typically 0-100
+    const maxPeak = 100.0; // Jamendo peaks are typically 0-100
 
     for (int i = 0; i < peaks.length; i++) {
       final peak = peaks[i].toDouble();
